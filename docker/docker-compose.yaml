@@ -1,0 +1,47 @@
+version: "3.4"
+
+volumes:
+  external_db:
+    external: true
+
+services:
+  app.your_app:
+    image: php:5.3-apache
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    volumes:
+      - "../src:/var/www/html"
+      - ./etc/php/php.ini:/etc/php.ini
+      - ./etc/httpd/httpd.conf:/etc/httpd/conf/httpd.conf
+      - ./etc/httpd/conf.d/00-your_app.conf:/etc/httpd/conf.d/00-your_app.conf
+    ports:
+      - 80:80
+    links:
+      - db.your_mysql
+
+  db.your_mysql:
+    image: mysql
+    volumes:
+      - "./mysql_data:/var/lib/mysql"
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=******** # TODO: change your password
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=******** # TODO: change your password
+
+  db.your_admin:
+    image: phpmyadmin/phpmyadmin
+    build:
+      context: .
+      dockerfile: etc/pma/Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db.mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=********  # TODO: change your password
+    links:
+      - db.your_mysql
