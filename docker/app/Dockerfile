@@ -1,4 +1,4 @@
-FROM centos:6.9
+FROM centos:7
 
 ENV PHP_VERSION 5.3.3
 
